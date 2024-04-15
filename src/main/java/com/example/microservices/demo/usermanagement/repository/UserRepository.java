@@ -16,7 +16,6 @@ import com.example.microservices.demo.usermanagement.Entity.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity,String>{
 
 	boolean existsByEmail(String email);
-
 	UserEntity findByEmail(String email);
 		
 		 @Query("SELECT u FROM UserEntity u WHERE u.status = :type")
@@ -31,8 +30,8 @@ public interface UserRepository extends JpaRepository<UserEntity,String>{
 		            "LIMIT 5", nativeQuery = true)
 			List<UserEntity> findByIdOrNameRegexWithLimit(String textRegex);
 		 
-		 	@Modifying
-		    @Transactional
-		    @Query("UPDATE UserEntity u SET u.status = :status WHERE u.id IN :ids")
-		    void setStatusTrueByIds(@Param("status") boolean status, @Param("ids") List<String> userIds);
+	 	@Modifying
+	    @Transactional
+	    @Query("UPDATE UserEntity u SET u.status = :status WHERE u.id IN :ids")
+	    void enableDisableStatusByIds(@Param("status") boolean status, @Param("ids") List<String> userIds);
 }

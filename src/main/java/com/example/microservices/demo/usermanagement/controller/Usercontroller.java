@@ -1,13 +1,6 @@
 package com.example.microservices.demo.usermanagement.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException.NotFound;
-
 import com.example.microservices.demo.usermanagement.Entity.UserEntity;
 import com.example.microservices.demo.usermanagement.Entity.Userupdatepayload;
 import com.example.microservices.demo.usermanagement.Exception.BadRequestException;
 import com.example.microservices.demo.usermanagement.Exception.DataNotFoundException;
-import com.example.microservices.demo.usermanagement.Exception.UnautherizedException;
-import com.example.microservices.demo.usermanagement.customannitation.Authentication;
 import com.example.microservices.demo.usermanagement.service.Userservices;
-
-import io.jsonwebtoken.lang.Arrays;
 
 
 @RestController
@@ -41,10 +27,10 @@ public class Usercontroller {
 	private Userservices service;
 	
 		@GetMapping("/user/getAll/{status}")
-		public ResponseEntity findAllUsers(@PathVariable Boolean status) throws Exception {
-					List<UserEntity> response=service.findAllUser(status);
+		public ResponseEntity findAllUsersBasedOnStatus(@PathVariable Boolean status) throws Exception {
+					List<UserEntity> response=service.findUsersBasedOnStatus(status);
 					if(response.isEmpty()) {
-						throw new DataNotFoundException("User Data not found");
+						throw new DataNotFoundException("User data not found");
 					}
 					else {
 						//return response;
@@ -54,9 +40,9 @@ public class Usercontroller {
 		
 		@GetMapping("/user/getById/{userId}")
 		public ResponseEntity findByUserID(@PathVariable String userId) {
-			UserEntity responsId= service.findUserSingleID(userId);
+			UserEntity responsId= service.getUserID(userId);
 			if(responsId==null){
-				throw new DataNotFoundException("users Data not found please give another id");
+				throw new DataNotFoundException("Users data not found please give another id");
 			}
 			else {
 				return new ResponseEntity(responsId , HttpStatus.OK);
@@ -64,11 +50,11 @@ public class Usercontroller {
 			}
 		}
 		
-		@PutMapping("/disable/deleteallusers/{status}")
-		public ResponseEntity<String> updateUsersData1(@RequestBody Userupdatepayload userdetails,@PathVariable Boolean status) throws Exception {
+		@PutMapping("/enabledisable/multiuser/{status}")
+		public ResponseEntity<String> enableDisableMultiUserStatus(@RequestBody Userupdatepayload userdetails,@PathVariable Boolean status) throws Exception {
 			String response=service.enabledisableUsers(userdetails.getIds(),status);
 			if(response==null) {
-				throw new BadRequestException("users data not updated");
+				throw new BadRequestException("Unable to update user status");
 			}
 			else {
 				return new ResponseEntity(response , HttpStatus.OK);
@@ -76,10 +62,10 @@ public class Usercontroller {
 		}
 		
 		@PostMapping("/user/save")
-		public ResponseEntity CreateUsersData(@RequestBody UserEntity companydetails) throws Exception {
-			UserEntity response=service.createUserData(companydetails);
+		public ResponseEntity createUsersNewUser(@RequestBody UserEntity userdetails) throws Exception {
+			UserEntity response=service.createUserDatails(userdetails);
 			if(response==null) {
-				throw new BadRequestException("Users Details saving failed");
+				throw new BadRequestException("Unable to create user");
 			}
 			else {
 				return new ResponseEntity(response , HttpStatus.CREATED);
@@ -87,10 +73,10 @@ public class Usercontroller {
 		}
 		
 		@PutMapping("/user/update/{userid}")
-		public ResponseEntity<String> updateUsersData(@RequestBody UserEntity userdetails, @PathVariable String userid) throws Exception {
+		public ResponseEntity<String> updateUsersDatails(@RequestBody UserEntity userdetails, @PathVariable String userid) throws Exception {
 					UserEntity response=service.updateUerData(userdetails,userid);
 					if(response==null) {
-						throw new BadRequestException("users Data not updated");
+						throw new BadRequestException("Unable to update user");
 					}
 					else {
 						return new ResponseEntity(response , HttpStatus.OK);
@@ -98,11 +84,11 @@ public class Usercontroller {
 				}
 		 
 	
-		@DeleteMapping("/user/delete/{id}/{status}")
-		public ResponseEntity deleteUserID(@PathVariable String id,@PathVariable Boolean status) throws Exception {
-			UserEntity response=service.deleteUserSingleId(id,status); 
+		@DeleteMapping("/enabledisable/singleuser/{id}/{status}")
+		public ResponseEntity enableDisableSingleUser(@PathVariable String id,@PathVariable Boolean status) throws Exception {
+			UserEntity response=service.enableAndDisableUserById(id,status); 
 			if(response==null) {
-				throw new DataNotFoundException("users Data not deleted");
+				throw new DataNotFoundException("Unable to enable/disable user");
 			}
 			else {
 				return new ResponseEntity(response , HttpStatus.OK);
@@ -110,13 +96,13 @@ public class Usercontroller {
 		}
 		
 		@GetMapping("/user/search/{searchtext}")
-		public ResponseEntity<List<UserEntity>> getUsers(@PathVariable String searchtext) throws Exception {
-			List<UserEntity> usersDetails =  service.searchUser(searchtext);
+		public ResponseEntity<List<UserEntity>> searchUserByNameAndID(@PathVariable String searchtext) throws Exception {
+			List<UserEntity> usersDetails =  service.searchUserBasedOnIdName(searchtext);
 			if(usersDetails != null) {
 				return new ResponseEntity (usersDetails, HttpStatus.OK);
 			}
 			else {
-				throw new DataNotFoundException("User data not found");
+				throw new DataNotFoundException("User details not found");
 			}
 		}
 
